@@ -1,62 +1,40 @@
 use strict;
 use warnings;
 
-sub has_mixed_case_letters {
-    my ($password) = @_;
-    return $password =~ /[a-z]/ && $password =~ /[A-Z]/;
-}
-
-sub has_numbers {
-    my ($password) = @_;
-    return $password =~ /[0-9]/;
-}
-
-sub has_symbols {
-    my ($password) = @_;
-    return $password =~ /[\W_]/;
-}
-
 sub is_valid_password {
     my ($password) = @_;
-    my $length = length($password);
 
-    return "Invalid: Password must be at least 8 characters long" if $length < 8;
+    # Single regex pattern to check all conditions
+    my $pattern = qr/
+        ^(?:
+            (?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,11} | # 8-11: mixed case, numbers, symbols
+            (?=.*[a-z])(?=.*[A-Z])(?=.*\d).{12,15} |           # 12-15: mixed case, numbers
+            (?=.*[a-z])(?=.*[A-Z]).{16,19} |                   # 16-19: mixed case
+            .{20,}                                             # 20+: any characters
+        )$
+    /x;
 
-    if ($length >= 8 && $length <= 11) {
-        return "Valid" if has_mixed_case_letters($password) && has_numbers($password) && has_symbols($password);
-        return "Invalid: Password must contain mixed case letters, numbers, and symbols";
-    }
-    elsif ($length >= 12 && $length <= 15) {
-        return "Valid" if has_mixed_case_letters($password) && has_numbers($password);
-        return "Invalid: Password must contain mixed case letters and numbers";
-    }
-    elsif ($length >= 16 && $length <= 19) {
-        return "Valid" if has_mixed_case_letters($password);
-        return "Invalid: Password must contain mixed case letters";
-    }
-    else {
-        return "Valid";
-    }
+    return $password =~ $pattern;
 }
 
 # Testing
 my $password = '1234';
-print $password . " is " . is_valid_password($password) . "\n"; #Invalid
+print $password . " is " . (is_valid_password($password) ? "Valid" : "Invalid") . "\n";
 
 $password = '12345678';
-print $password . " is " . is_valid_password($password) . "\n"; #Invalid
+print $password . " is " . (is_valid_password($password) ? "Valid" : "Invalid") . "\n";
 
 $password = '1234567890AB';
-print $password . " is " . is_valid_password($password) . "\n"; #Invalid
+print $password . " is " . (is_valid_password($password) ? "Valid" : "Invalid") . "\n";
 
 $password = '1234567890Ab';
-print $password . " is " . is_valid_password($password) . "\n"; #Valid
+print $password . " is " . (is_valid_password($password) ? "Valid" : "Invalid") . "\n";
 
 $password = '1234567890123456';
-print $password . " is " . is_valid_password($password) . "\n"; #Invalid
+print $password . " is " . (is_valid_password($password) ? "Valid" : "Invalid") . "\n";
 
 $password = '1234567890123456Ab';
-print $password . " is " . is_valid_password($password) . "\n"; #Valid
+print $password . " is " . (is_valid_password($password) ? "Valid" : "Invalid") . "\n";
 
 $password = '12345678901234567890';
-print $password . " is " . is_valid_password($password) . "\n"; #Valid
+print $password . " is " . (is_valid_password($password) ? "Valid" : "Invalid") . "\n";
